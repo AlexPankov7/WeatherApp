@@ -13,12 +13,15 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.FragmentActivity
 import com.android.volley.Request
+import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.example.myweatherapp365.R
 import com.example.myweatherapp365.adapters.VpAdapter
+import com.example.myweatherapp365.adapters.WeatherModel
 import com.example.myweatherapp365.databinding.FragmentMainBinding
 import com.google.android.material.tabs.TabLayoutMediator
+import org.json.JSONObject
 
 const val API_KEY = "6bdda072f1214b7dad0145538222206"
 
@@ -89,15 +92,34 @@ class MainFragment : Fragment() {
             Request.Method.GET,
             url,
             {
-                result -> Log.d("MyLog", "Result: $result")
+                result -> parseWeatherData(result)
             },
             {
                 error -> Log.d("MyLog", "Error: $error")
             }
         )
         queue.add(request)
+    }
 
-
+    private fun parseWeatherData(result: String) {
+        val mainObject = JSONObject(result)
+        val item = WeatherModel(
+            mainObject.getJSONObject("location").getString("name"),
+            mainObject.getJSONObject("current").getString("last_updated"),
+            mainObject.getJSONObject("current")
+                .getJSONObject("condition").getString("text"),
+            mainObject.getJSONObject("current").getString("temp_c"),
+            "",
+            "",
+            mainObject.getJSONObject("current")
+            .getJSONObject("condition").getString("icon"),
+            ""
+        )
+        Log.d("MyLog", "City: ${item.city}")
+        Log.d("MyLog", "Time: ${item.time}")
+        Log.d("MyLog", "Condition: ${item.condition}")
+        Log.d("MyLog", "Temp: ${item.currentTemp}")
+        Log.d("MyLog", "url: ${item.imageUrl}")
     }
 
     companion object {
