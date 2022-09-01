@@ -9,7 +9,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.myweatherapp365.R
 import com.example.myweatherapp365.databinding.ListItemBinding
 
-class WeatherAdapter : ListAdapter<WeatherModel, WeatherAdapter.Holder>(Comparator()) {
+class WeatherAdapter : ListAdapter<WeatherModel, WeatherAdapter.Holder>
+    (Comparator()) {
 
     class Holder(view: View) : RecyclerView.ViewHolder(view){   // With this code we will save and fill in the layout
         val binding = ListItemBinding.bind(view)
