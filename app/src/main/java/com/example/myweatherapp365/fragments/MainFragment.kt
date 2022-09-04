@@ -19,11 +19,12 @@ import com.example.myweatherapp365.MainViewModel
 import com.example.myweatherapp365.adapters.VpAdapter
 import com.example.myweatherapp365.adapters.WeatherModel
 import com.example.myweatherapp365.databinding.FragmentMainBinding
+import com.example.myweatherapp365.fragments.DaysFragment
+import com.example.myweatherapp365.fragments.HoursFragment
+import com.example.myweatherapp365.fragments.isPermissionGranted
 import com.google.android.material.tabs.TabLayoutMediator
 import com.squareup.picasso.Picasso
 import org.json.JSONObject
-import java.util.*
-import kotlin.collections.ArrayList
 
 const val API_KEY = "6bdda072f1214b7dad0145538222206"
 
@@ -53,7 +54,7 @@ class MainFragment : Fragment() {
         checkPermission()
         init()
         updateCurrentCard()
-        requestWeatherData("London")
+        requestWeatherData("Berlin")
     }
 
     private fun init() = with(binding){
@@ -64,16 +65,18 @@ class MainFragment : Fragment() {
         }.attach()
 
     }
-
-    private fun updateCurrentCard() = with(binding){
+                                            // возможно ошибка!!!
+    private fun updateCurrentCard()  = with(binding){
         model.liveDataCurrent.observe(viewLifecycleOwner){
-            val maxMinTemp = "${it.maxTemp}C/${it.minTemp}C"
+
+                val maxMinTemp = "${it.maxTemp}C/${it.minTemp}C"
             tvData.text = it.time
             tvCity.text = it.city
             tvCurrentTemp.text = it.currentTemp
             tvCondition.text = it.condition
             tvMaxMin.text = maxMinTemp
-            Picasso.get().load(it.imageUrl).into(imWeather)
+            Picasso.get().load("https:" + it.imageUrl).into(imWeather)
+
 
         }
     }
@@ -120,11 +123,11 @@ class MainFragment : Fragment() {
         parseCurrentData(mainObject, list[0])
     }
 
-    private fun parseDays(mainObject: JSONObject): List<WeatherModel> {
+    private fun parseDays(mainObject: JSONObject): List<WeatherModel>{
         val list = ArrayList<WeatherModel>()
         val daysArray = mainObject.getJSONObject("forecast")
             .getJSONArray("forecastday")
-        val name = mainObject.getJSONObject("location").getString("name")
+        val name =  mainObject.getJSONObject("location").getString("name")
         for (i in 0 until daysArray.length()){
             val day = daysArray[i] as JSONObject
             val item = WeatherModel(
@@ -140,13 +143,11 @@ class MainFragment : Fragment() {
                 day.getJSONArray("hour").toString()
             )
             list.add(item)
-
         }
         return list
     }
 
-    private fun parseCurrentData(mainObject: JSONObject, weatherItem: WeatherModel) {
-
+    private fun parseCurrentData(mainObject: JSONObject, weatherItem: WeatherModel){
         val item = WeatherModel(
             mainObject.getJSONObject("location").getString("name"),
             mainObject.getJSONObject("current").getString("last_updated"),
@@ -163,8 +164,6 @@ class MainFragment : Fragment() {
         Log.d("MyLog", "City: ${item.maxTemp}")
         Log.d("MyLog", "Time: ${item.minTemp}")
         Log.d("MyLog", "Time: ${item.hours}")
-
-
     }
 
     companion object {
