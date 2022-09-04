@@ -5,15 +5,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.myweatherapp365.MainViewModel
+import com.example.myweatherapp365.R
 import com.example.myweatherapp365.adapters.WeatherAdapter
 import com.example.myweatherapp365.databinding.FragmentDaysBinding
 
 
-class DaysFragment : Fragment()
-        private lateinit var adapter: WeatherAdapter
-        private lateinit var binding: FragmentDaysBinding
-
+class DaysFragment : Fragment() {
+    private lateinit var adapter: WeatherAdapter
+    private lateinit var binding: FragmentDaysBinding
+    private val model: MainViewModel by activityViewModels()
 
 
     override fun onCreateView(
@@ -24,19 +27,26 @@ class DaysFragment : Fragment()
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        init()
+        model.liveDataList.observe(viewLifecycleOwner){
+            adapter.submitList(it.subList(1, it.size))
+        }
+    }
 
 
-    private fun init() = with(binding) {
+    private fun init() = with(binding){
         adapter = WeatherAdapter()
         rcView.layoutManager = LinearLayoutManager(activity)
-    }
-
-    companion object {
-        @JvmStatic
-        fun newInstance() = DaysFragment()
+        rcView.adapter = adapter
     }
 
 
 
+companion object {
+    @JvmStatic
+    fun newInstance() = DaysFragment()
+}
 }
 
