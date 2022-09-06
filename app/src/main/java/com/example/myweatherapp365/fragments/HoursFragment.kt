@@ -19,22 +19,6 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 
-//import android.os.Bundle
-//import android.util.Log
-//import androidx.fragment.app.Fragment
-//import android.view.LayoutInflater
-//import android.view.View
-//import android.view.ViewGroup
-//import androidx.fragment.app.activityViewModels
-//import androidx.recyclerview.widget.LinearLayoutManager
-//import com.meter_alc_rgb.weatherappcursey.MainViewModel
-//import com.meter_alc_rgb.weatherappcursey.R
-//import com.meter_alc_rgb.weatherappcursey.adapters.WeatherAdapter
-//import com.meter_alc_rgb.weatherappcursey.adapters.WeatherModel
-//import com.meter_alc_rgb.weatherappcursey.databinding.FragmentHoursBinding
-//import org.json.JSONArray
-//import org.json.JSONObject
-
 class HoursFragment : Fragment() {
     private lateinit var binding: FragmentHoursBinding
     private lateinit var adapter: WeatherAdapter
@@ -58,7 +42,7 @@ class HoursFragment : Fragment() {
 
     private fun initRcView() = with(binding){
         rcView.layoutManager = LinearLayoutManager(activity)
-        adapter = WeatherAdapter()
+        adapter = WeatherAdapter(null)
         rcView.adapter = adapter
 
     }
