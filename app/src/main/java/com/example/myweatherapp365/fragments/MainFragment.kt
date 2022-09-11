@@ -1,8 +1,12 @@
 package com.example.myweatherapp365.fragments
 
 import android.Manifest
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -18,6 +22,7 @@ import androidx.fragment.app.activityViewModels
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.example.myweatherapp365.DialogManager
 import com.example.myweatherapp365.MainViewModel
 import com.example.myweatherapp365.adapters.VpAdapter
 import com.example.myweatherapp365.adapters.WeatherModel
@@ -28,6 +33,7 @@ import com.example.myweatherapp365.fragments.isPermissionGranted
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.material.tabs.TabLayoutMediator
 import com.squareup.picasso.Picasso
@@ -63,7 +69,12 @@ class MainFragment : Fragment() {
         init()
         updateCurrentCard()
          //requestWeatherData("Saint-Petersburg")
-        getLocation()
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        checkLocation()
     }
 
     private fun init() = with(binding){
@@ -77,10 +88,35 @@ class MainFragment : Fragment() {
             tabLayout.selectTab(tabLayout.getTabAt(0)) // When updated
             // (by pressing the button ibSync), it switches to the weather by the hour.
             getLocation()
+            checkLocation()
         }
     }
 
+    private fun checkLocation() {
+        if (isLocationEnabled()){
+            getLocation()
+        } else {
+            DialogManager.locationSettingsDialog(requireContext(), object : DialogManager.Listener{
+                override fun onClick() {
+                    startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+                }
+
+            })
+        }
+    }
+
+
+    // The function(isLocationEnabled) checks whether geolocation is enabled
+    private fun isLocationEnabled(): Boolean {
+        val lm = activity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+    return lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
+    }
+
     private fun  getLocation() {
+//        if (!isLocationEnabled()){  // make sure there is no error when no geolocation is enabled
+//            Toast.makeText(requireContext(), "Location disabled!", Toast.LENGTH_SHORT).show()
+//            return
+//        }
         val ct = CancellationTokenSource()
         if (ActivityCompat.checkSelfPermission(
                 requireContext(),
@@ -93,7 +129,7 @@ class MainFragment : Fragment() {
             return
         }
         fLocationClient
-            .getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, ct.token)
+            .getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, ct.token)
             .addOnCompleteListener{
                 requestWeatherData("${it.result.latitude}, ${it.result.longitude}")
                 // 45.656567, -7.6756757
